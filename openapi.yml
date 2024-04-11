@@ -1,0 +1,153 @@
+openapi: 3.0.3
+info:
+  title: API for mobile application
+  description: Title
+  version: 0.0.1
+servers:
+  - url: https://dev.foo.com/v1
+paths:
+  /phone/send-confirmation-code:
+    post:
+      tags:
+        - Authentication
+      description: The endpoint requests a code confirmation for the specific phone number. Kind of second factor authentication
+      requestBody:
+        description: When you test this API endpoint, please ensure that you are using your personal phone number. Some operators block SMS from non-registered providers, therefore, if you don't receive the sms, please try to use voice call method of notification
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone
+                - notification_type
+              properties:
+                phone:
+                  $ref: '#/paths/~1registration/post/requestBody/content/application~1json/schema/properties/phone'
+                notification_type:
+                  type: string
+                  description: 'The notification type should be exactly one of the list: <code>sms</code> or <code>voice_call</code>'
+                  example: sms
+        required: true
+      responses:
+        '204':
+          description: The code is successfully sent
+  /phone/attempt-confirmation-code:
+    post:
+      tags:
+        - Authentication
+      description: After receiving phone confirmation code, the customer must attempt the code within this endpoint
+      requestBody:
+        description: Send the phone confirmation code to the endpoint
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone
+                - code
+              properties:
+                phone:
+                  $ref: '#/paths/~1registration/post/requestBody/content/application~1json/schema/properties/phone'
+                code:
+                  type: string
+                  description: The received phone confirmation code
+                  example: '1234'
+        required: true
+      responses:
+        '200':
+          description: The code is successfully attempted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customer:
+                    $ref: '#/paths/~1registration/post/responses/200/content/application~1json/schema/properties/customer'
+                  token:
+                    type: string
+                    description: Bearer JWT auth token
+  /pre-registration:
+    post:
+      tags:
+        - Registration
+      description: The first step that should be done. Before making any phone confirmations, this API endpoint should be called. Only after successfully done this step, you can send phone-confirmation code. This API request registers the phone of the user into the database and prevents any brute-force requests from the current ip address and for the phone number
+      requestBody:
+        description: Put the minimum data about the user into the database
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone
+              properties:
+                phone:
+                  $ref: '#/paths/~1registration/post/requestBody/content/application~1json/schema/properties/phone'
+        required: true
+      responses:
+        '200':
+          description: As a result of successfully done request you will receive Customer schema with his status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customer:
+                    $ref: '#/paths/~1registration/post/responses/200/content/application~1json/schema/properties/customer'
+  /registration:
+    post:
+      tags:
+        - Registration
+      description: After successful phone confirmation, the last part of user data should be also put into the database
+      requestBody:
+        description: Send the name and pin-code (4 digital numbers) of the user into the database
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone
+                - name
+                - password
+              properties:
+                phone:
+                  type: string
+                  description: The phone should be consistent with the international phone number format - E.164
+                  example: '+71234567890'
+                name:
+                  type: string
+                  description: Full name of the customer
+                  example: John Doe
+                password:
+                  type: string
+                  description: Four digits (including zero as a first digit), which will be used as a fast way to access the application
+                  example: '1234'
+        required: true
+      responses:
+        '200':
+          description: The registration has been completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customer:
+                    type: object
+                    required:
+                      - name
+                      - id
+                      - phone
+                      - status
+                    properties:
+                      name:
+                        type: string
+                      id:
+                        type: integer
+                      phone:
+                        $ref: '#/paths/~1registration/post/requestBody/content/application~1json/schema/properties/phone'
+                      status:
+                        type: string
+tags:
+  - name: Authentication
+    description: Before authentication, make sure that pre-registration endpoint has been called
+  - name: Registration
+    description: ''

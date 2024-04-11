@@ -1,0 +1,39 @@
+security:
+  enable_authenticator_manager: true
+  providers:
+    jwt:
+      lexik_jwt:
+        class: App\Context\UsersManagement\Container\User\Model\UserModel
+
+#    app_user_provider:
+#      entity:
+#        class: App\Context\UsersManagement\Container\User\Entity\UserDoctrineEntity
+#        property: login
+
+  firewalls:
+    api:
+      provider: jwt
+      pattern: ^/api
+      stateless: true
+      jwt: ~
+
+  access_control:
+    - { path: ^/api/v(\d?)/login, roles: PUBLIC_ACCESS }
+    - { path: ^/api/v(\d?)/registration, roles: PUBLIC_ACCESS }
+    - { path: ^/api/, roles: IS_AUTHENTICATED_FULLY }
+
+
+  role_hierarchy:
+    admin: [
+      operator,
+      customer,
+      furnitureMaker,
+    ]
+    operator: [
+      category_read,
+      category_write,
+      product_read,
+      product_write,
+    ]
+    customer: []
+    furnitureMaker: []

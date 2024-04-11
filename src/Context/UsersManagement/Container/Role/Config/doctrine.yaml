@@ -1,0 +1,9 @@
+doctrine:
+  orm:
+    mappings:
+      UsersManagement/Role:
+        type: attribute
+        is_bundle: false
+        dir: '%kernel.project_dir%/src/Context/UsersManagement/Container/Role/Entity'
+        prefix: 'App\Context\UsersManagement\Container\Role\Entity'
+        alias: App

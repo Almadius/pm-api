@@ -1,0 +1,2 @@
+UsersManagementRoutes/UserContainerRoutes:
+  resource: '../Container/User/Config/routes.yaml'

@@ -1,0 +1,56 @@
+service: symfony
+
+provider:
+  name: aws
+  region: eu-north-1
+  stage: prod
+  runtime: provided.al2
+  environment:
+    APP_ENV: prod
+    DB_HOST: ${ssm:/prod/pm-db/host}
+    DB_PASS: ${ssm:/prod/pm-db/password}
+    DB_USER: ${ssm:/prod/pm-db/username}
+    DB_NAME: ${ssm:/prod/pm-db/db-name}
+    DB_PORT: ${ssm:/prod/pm-db/db-port}
+    DB_DRIVER: doctrine
+    REDIS_HOST: clustercfg.pm-cache.aokhb0.memorydb.eu-north-1.amazonaws.com:6379
+    REDIS_PORT: 6379
+    #REDIS_HOST: pm-cache
+
+plugins:
+  - ./vendor/bref/bref
+  - ./vendor/bref/extra-php-extensions
+
+functions:
+  web:
+    handler: public/index.php
+    timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
+    layers:
+      - ${bref:layer.php-82-fpm}
+      - ${bref-extra:redis-php-82}
+      - ${bref-extra:pgsql-php-82}
+    events:
+      - httpApi: '*'
+
+  console:
+    handler: bin/console
+    timeout: 120 # in seconds
+    layers:
+      - ${bref:layer.php-82} # PHP
+      - ${bref-extra:redis-php-82}
+      - ${bref-extra:pgsql-php-82}
+      - ${bref:layer.console} # The "console" layer
+
+package:
+  patterns:
+    # Excluded files and folders for deployment
+    - '!assets/**'
+    - '!node_modules/**'
+    - '!public/build/**'
+    - '!tests/**'
+    - '!var/**'
+    # If you want to include files and folders that are part of excluded folders,
+    # add them at the end
+    - 'var/cache/prod/**'
+    - 'public/build/entrypoints.json'
+    - 'public/build/manifest.json'

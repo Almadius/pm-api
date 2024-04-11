@@ -1,0 +1,2 @@
+UsersManagementRoutes:
+  resource: '../src/Context/UsersManagement/Config/routes.yaml'

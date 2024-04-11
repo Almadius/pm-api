@@ -1,0 +1,3 @@
+imports:
+  - { resource: '../Container/User/Config/doctrine.yaml' }
+  - { resource: '../Container/Role/Config/doctrine.yaml' }

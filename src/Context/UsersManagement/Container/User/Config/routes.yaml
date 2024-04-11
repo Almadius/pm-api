@@ -1,0 +1,24 @@
+api.v1.auth.registration:
+  path: /api/v1/registration
+  controller: App\Context\UsersManagement\Container\User\Controller\AuthenticationController::registration
+  methods: POST
+
+api.v1.auth.login-with-password:
+  path: /api/v1/login-with-password
+  controller: App\Context\UsersManagement\Container\User\Controller\AuthenticationController::loginWithPassword
+  methods: POST
+
+api.v1.auth.login-with-code:
+  path: /api/v1/login-with-code
+  controller: App\Context\UsersManagement\Container\User\Controller\AuthenticationController::loginWithCode
+  methods: POST
+
+api.v1.auth.logout:
+  path: /api/v1/logout
+  controller: App\Context\UsersManagement\Container\User\Controller\AuthenticationController::logout
+  methods: POST
+
+api.v1.auth.phone-code-resend:
+  path: /api/v1/phone-code-resend
+  controller: App\Context\UsersManagement\Container\User\Controller\AuthenticationController::phoneCodeResend
+  methods: POST
